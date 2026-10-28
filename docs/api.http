@@ -1,0 +1,12 @@
+### Peticiones de prueba manual (extensión REST Client de VS Code).
+### Arranca antes la API: .venv\Scripts\python -m uvicorn app.main:app --reload
+
+@base = http://localhost:8000
+
+### Health
+GET {{base}}/health
+
+### Ruta inexistente (404 en JSON)
+GET {{base}}/does-not-exist
+
+### Añade aquí las peticiones de cada historia (crear, listar, filtrar, errores…)
