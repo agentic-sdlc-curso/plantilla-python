@@ -2,11 +2,11 @@
 
 from fastapi import FastAPI
 
-from app.errors import register_error_handlers
+from app.errors import ServiceRequestsAPI, register_error_handlers
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="Service Requests API")
+    app = ServiceRequestsAPI(title="Service Requests API")
     register_error_handlers(app)
 
     @app.get("/health")

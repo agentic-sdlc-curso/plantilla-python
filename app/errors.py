@@ -3,10 +3,19 @@
 Every error response of the API has the shape {"error": "<message>"}.
 """
 
+from typing import Any
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 from starlette.exceptions import HTTPException as StarletteHTTPException
+
+
+class ErrorResponse(BaseModel):
+    """Body of every error response."""
+
+    error: str
 
 
 class AppError(Exception):
@@ -48,3 +57,48 @@ def register_error_handlers(app: FastAPI) -> None:
     app.add_exception_handler(AppError, _app_error_handler)
     app.add_exception_handler(StarletteHTTPException, _http_error_handler)
     app.add_exception_handler(RequestValidationError, _validation_error_handler)
+
+
+_ERROR_SCHEMA_REF = {"$ref": "#/components/schemas/ErrorResponse"}
+
+
+# Any: OpenAPI documents are free-form JSON and FastAPI.openapi() is typed dict[str, Any].
+def _document_validation_errors_as_400(schema: dict[str, Any]) -> None:
+    """Replace the default 422 responses with the 400 {"error": ...} the API really returns."""
+    replaced = False
+    for path_item in schema.get("paths", {}).values():
+        for operation in path_item.values():
+            responses = operation.get("responses", {})
+            if "422" not in responses:
+                continue
+            del responses["422"]
+            responses.setdefault(
+                "400",
+                {
+                    "description": "Invalid request",
+                    "content": {"application/json": {"schema": _ERROR_SCHEMA_REF}},
+                },
+            )
+            replaced = True
+    components = schema.setdefault("components", {})
+    schemas = components.setdefault("schemas", {})
+    schemas.pop("HTTPValidationError", None)
+    schemas.pop("ValidationError", None)
+    if replaced:
+        schemas["ErrorResponse"] = ErrorResponse.model_json_schema()
+    if not schemas:
+        del components["schemas"]
+    if not components:
+        del schema["components"]
+
+
+class ServiceRequestsAPI(FastAPI):
+    """FastAPI application whose OpenAPI schema documents the real error responses."""
+
+    # Any: same signature as FastAPI.openapi().
+    def openapi(self) -> dict[str, Any]:
+        if self.openapi_schema is not None:
+            return self.openapi_schema
+        schema = super().openapi()
+        _document_validation_errors_as_400(schema)
+        return schema
