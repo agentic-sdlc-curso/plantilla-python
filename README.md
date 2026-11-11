@@ -2,7 +2,7 @@
 
 API REST de gestión de solicitudes con Python, FastAPI y pytest. Sobre este proyecto se practica el flujo:
 
-**Historia → Especificación aprobada → Planner → Developer → Tester → Reviewer → Correcciones → PR**
+**Historia → Planner → Especificación aprobada → Developer → Tester → Reviewer → Correcciones → PR**
 
 ## Requisitos
 Python 3.12 o superior, Git, VS Code con GitHub Copilot y GitHub CLI.

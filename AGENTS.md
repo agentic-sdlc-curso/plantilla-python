@@ -30,5 +30,5 @@
 - Para cualquier otro archivo (dependencias, configuración, CI, instrucciones, agentes), pide confirmación y explica el motivo.
 
 ## Dependencias
-- No escribas versiones de memoria. Para añadir una dependencia: instálala con `python -m pip install <paquete>`, consulta la versión instalada con `python -m pip show <paquete>` y añádela con `==<versión>` a `requirements.txt` (producción) o `requirements-dev.txt` (desarrollo).
+- No escribas versiones de memoria. Para añadir una dependencia: instálala con `.venv\Scripts\python -m pip install <paquete>`, consulta la versión instalada con `.venv\Scripts\python -m pip show <paquete>` y añádela con `==<versión>` a `requirements.txt` (producción) o `requirements-dev.txt` (desarrollo).
 - `pip-audit` no debe mostrar vulnerabilidades.
